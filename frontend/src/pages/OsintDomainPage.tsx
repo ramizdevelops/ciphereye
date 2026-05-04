@@ -79,7 +79,7 @@ export default function OsintDomainPage() {
                 records && records.length > 0 && (
                   <div key={rtype}>
                     <p className="text-accent-cyan mb-1">{rtype}</p>
-                    {records.map((r, i) => (
+                    {(records as string[]).map((r: string, i: number) => (
                       <p key={i} className="text-gray-300 pl-2">{r}</p>
                     ))}
                   </div>
