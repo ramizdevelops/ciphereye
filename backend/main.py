@@ -5,15 +5,15 @@ CipherEye CTF Workbench — FastAPI Backend
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import os
 import pathlib
 
 from routers import stego, osint, geoint
 
-# Use /tmp on Render (writable), local uploads/ in dev
 UPLOAD_DIR = pathlib.Path(os.getenv("UPLOAD_DIR", "/tmp/uploads"))
 
 @asynccontextmanager
@@ -28,12 +28,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# CORS — must be first middleware, before everything else
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # restrict after deployment confirmed
+    allow_origins=["*"],
     allow_credentials=False,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 app.include_router(stego.router, prefix="/api/stego", tags=["Steganography"])
@@ -47,3 +49,12 @@ async def health():
 @app.get("/api/health")
 async def api_health():
     return {"status": "ok"}
+
+# Global error handler — ensures CORS headers are on error responses too
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc)},
+        headers={"Access-Control-Allow-Origin": "*"},
+    )

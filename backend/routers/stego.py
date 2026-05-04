@@ -20,7 +20,7 @@ from services.stego_service import (
 )
 
 router = APIRouter()
-UPLOAD_DIR = pathlib.Path("uploads")
+UPLOAD_DIR = pathlib.Path(os.getenv("UPLOAD_DIR", "/tmp/uploads"))
 
 
 def save_upload(file: UploadFile) -> pathlib.Path:

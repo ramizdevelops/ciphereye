@@ -5,15 +5,16 @@ Extracts GPS coordinates from image EXIF and returns structured location data fo
 
 from fastapi import APIRouter, UploadFile, File
 from fastapi.responses import JSONResponse
-import pathlib, uuid, shutil
+import pathlib, uuid, shutil, os
 
 from services.geoint_service import extract_gps_from_image, batch_extract_gps
 
 router = APIRouter()
-UPLOAD_DIR = pathlib.Path("/app/uploads")
+UPLOAD_DIR = pathlib.Path(os.getenv("UPLOAD_DIR", "/tmp/uploads"))
 
 
 def save_upload(file: UploadFile) -> pathlib.Path:
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     ext = pathlib.Path(file.filename).suffix if file.filename else ""
     dest = UPLOAD_DIR / f"{uuid.uuid4().hex}{ext}"
     with dest.open("wb") as f:
@@ -54,3 +55,4 @@ async def batch_extract(files: list[UploadFile] = File(...)):
     finally:
         for p in saved_paths:
             p.unlink(missing_ok=True)
+            
