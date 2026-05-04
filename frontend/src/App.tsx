@@ -222,7 +222,6 @@ export default function App() {
           <div style={{ display: 'flex', gap: 8 }}>
             {[
               { label: 'LIVE', color: '#34d399' },
-              { label: 'CTF MODE', color: '#a78bfa' },
             ].map(p => (
               <div key={p.label} style={{
                 display: 'flex', alignItems: 'center', gap: 5,
