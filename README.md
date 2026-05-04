@@ -155,4 +155,3 @@ This project is licensed under the [MIT License](LICENSE).
 ##  Author
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Ramiz_Shaikh-0a66c2?style=flat-square&logo=linkedin)](https://linkedin.com/in/ramiz-shaikh2004/)
-[![GitHub](https://img.shields.io/badge/GitHub-ramizdevelops-white?style=flat-square&logo=github)](https://github.com/ramizdevelops)
