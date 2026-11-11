@@ -122,7 +122,7 @@ export default function App() {
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
           }}>
             <span style={{ fontFamily: 'monospace', fontSize: 10, color: '#475569', letterSpacing: 0.5 }}>
-              Made with ❤️ by Ramiz
+              Made by Ramiz
             </span>
             <div style={{ display: 'flex', gap: 6 }}>
               <a
