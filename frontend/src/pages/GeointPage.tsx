@@ -17,12 +17,26 @@ L.Icon.Default.mergeOptions({
 })
 
 // ── Map styles ────────────────────────────────────────────────────────────────
-const MAP_STYLES = [
+// Optional free key from https://carto.com/basemaps/apikey (needed for Voyager / Dark / Light)
+const CARTO_KEY: string = import.meta.env.VITE_CARTO_KEY || ''
+
+interface MapStyle {
+  id: string
+  label: string
+  emoji: string
+  url: string
+  attribution: string
+  preview: string
+  needsKey?: boolean
+}
+
+const MAP_STYLES: MapStyle[] = [
   {
     id: 'voyager',
     label: 'Voyager',
     emoji: '🗺️',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    url: `https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=${CARTO_KEY}`,
+    needsKey: true,
     attribution: '&copy; OSM &copy; CARTO',
     preview: '#6ab3e0',
   },
@@ -30,7 +44,8 @@ const MAP_STYLES = [
     id: 'dark',
     label: 'Dark Matter',
     emoji: '🌑',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    url: `https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png?key=${CARTO_KEY}`,
+    needsKey: true,
     attribution: '&copy; OSM &copy; CARTO',
     preview: '#1a1a2e',
   },
@@ -38,7 +53,8 @@ const MAP_STYLES = [
     id: 'light',
     label: 'Light',
     emoji: '☀️',
-    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    url: `https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png?key=${CARTO_KEY}`,
+    needsKey: true,
     attribution: '&copy; OSM &copy; CARTO',
     preview: '#f5f5f0',
   },
@@ -84,6 +100,10 @@ const MAP_STYLES = [
   },
 ]
 
+// Hide CARTO styles when no key is configured so users never see the watermark
+const AVAILABLE_STYLES = MAP_STYLES.filter(st => !st.needsKey || CARTO_KEY)
+const DEFAULT_STYLE = CARTO_KEY ? 'voyager' : 'osm'
+
 // ── FlyTo helper ──────────────────────────────────────────────────────────────
 function FlyTo({ locations }: { locations: GpsLocation[] }) {
   const map = useMap()
@@ -100,7 +120,7 @@ function FlyTo({ locations }: { locations: GpsLocation[] }) {
 
 // ── TileLayer switcher (must be inside MapContainer) ─────────────────────────
 function DynamicTileLayer({ styleId }: { styleId: string }) {
-  const style = MAP_STYLES.find(s => s.id === styleId) ?? MAP_STYLES[0]
+  const style = AVAILABLE_STYLES.find(s => s.id === styleId) ?? AVAILABLE_STYLES[0]
   return <TileLayer key={styleId} url={style.url} attribution={style.attribution} />
 }
 
@@ -110,7 +130,7 @@ export default function GeointPage() {
   const [loading, setLoading]     = useState(false)
   const [error, setError]         = useState<string | null>(null)
   const [selected, setSelected]   = useState<GpsLocation | null>(null)
-  const [mapStyle, setMapStyle]   = useState('voyager')
+  const [mapStyle, setMapStyle]   = useState(DEFAULT_STYLE)
   const [showPicker, setShowPicker] = useState(false)
 
   const onDrop = async (files: File[]) => {
@@ -142,7 +162,7 @@ export default function GeointPage() {
     multiple: true,
   })
 
-  const activeStyle = MAP_STYLES.find(s => s.id === mapStyle) ?? MAP_STYLES[0]
+  const activeStyle = AVAILABLE_STYLES.find(s => s.id === mapStyle) ?? AVAILABLE_STYLES[0]
 
   return (
     <div className="flex h-full">
@@ -197,7 +217,7 @@ export default function GeointPage() {
               }}>
                 Map Style
               </p>
-              {MAP_STYLES.map(style => (
+              {AVAILABLE_STYLES.map(style => (
                 <button
                   key={style.id}
                   onClick={() => { setMapStyle(style.id); setShowPicker(false) }}
